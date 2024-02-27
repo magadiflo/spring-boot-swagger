@@ -582,3 +582,55 @@ El json completo sería el siguiente:
   }
 }
 ````
+
+## Personalización de configuraciones
+
+- Para obtener una ruta personalizada de la documentación de swagger en formato HTML, agregue una propiedad springdoc
+  personalizada en su archivo de configuración spring-boot:
+
+  ````properties
+  # swagger-ui custom path
+  springdoc.swagger-ui.path=/custom-path-swagger-ui
+  ````
+
+  En el ejemplo anterior definimos el path `/custom-path-swagger-ui` para ver el html de swagger, es decir, para acceder
+  mediante el navegador a la interfaz gráfica de swagger ya no usaremos el path por defecto `/swagger-ui.html`, sino más
+  bien usaremos el que acabamos de definir en el `.properties` o `.yml`. **NOTA**. Usando el nuevo path o el que
+  viene por defecto, siempre seremos redirigidos al path `http://localhost:8080/swagger-ui/index.html`.
+
+
+- Para deshabilitar el endpoint `springdoc-openapi` (`/v3/api-docs` de forma predeterminada), utilice la siguiente
+  propiedad:
+
+  ````properties
+  # Disabling the /v3/api-docs endpoint
+  springdoc.api-docs.enabled=false
+  ````
+  Ahora, si tratamos de ingresar a `http://localhost:8080/v3/api-docs`, obtendremos una página de error.
+
+
+- Para deshabilitar swagger-ui, use la siguiente propiedad:
+
+  ````properties
+  # Disabling the swagger-ui
+  springdoc.swagger-ui.enabled=false
+  ````
+  Ahora, si tratamos de ingresar a `http://localhost:8080/swagger-ui.html`, obtendremos una página de error y si
+  tratamos de ingresar directamente a `http://localhost:8080/swagger-ui/index.html` obtendremos una página en blanco.
+
+
+- Para que se incluya la lista de paquetes, utilice la siguiente propiedad:
+  ````properties
+  # Packages to include
+  springdoc.packagesToScan=com.package1, com.package2
+  ````
+  **NOTA.** Solo serán visibles en el html los endpoints de los `packages` que coincidan, **los demás no se mostrarán.**
+
+
+- Para incluir la lista de rutas, utilice la siguiente propiedad:
+  ````properties
+  # Paths to include
+  springdoc.pathsToMatch=/v1, /api/balance/**
+  ````
+  **NOTA.** Solo serán visibles en el html los endpoints de los `Paths` que coincidan, **los demás no se mostrarán.**
+  
