@@ -633,4 +633,70 @@ El json completo sería el siguiente:
   springdoc.pathsToMatch=/v1, /api/balance/**
   ````
   **NOTA.** Solo serán visibles en el html los endpoints de los `Paths` que coincidan, **los demás no se mostrarán.**
-  
+
+## Descripción de la API de Spring Boot y Swagger
+
+Antes de empezar a documentar la API, puedes definir primero la descripción de la API con su información básica, que
+incluye la URL base (entorno de desarrollo y producción), título, versión, contacto del autor, descripción, licencia...
+
+Ahora define la clase `OpenAPIConfig` con el bean `OpenAPI` como el siguiente código:
+
+````java
+
+@Configuration
+public class OpenApiConfig {
+
+    @Value("${magadiflo.openapi.dev-url}")
+    private String devUrl;
+    @Value("${magadiflo.openapi.prod-url}")
+    private String prodUrl;
+
+    @Bean
+    public OpenAPI openApiBasicInformation() {
+        Server devServer = new Server();
+        devServer.setUrl(this.devUrl);
+        devServer.setDescription("URL de servidor en entorno de desarrollo");
+
+        Server prodServer = new Server();
+        prodServer.setUrl(this.prodUrl);
+        prodServer.setDescription("URL de servidor en entorno de producción");
+
+        Contact contact = new Contact()
+                .email("magadiflo@gmail.com")
+                .name("Martín")
+                .url("http://www.magadiflo.com");
+
+        License license = new License()
+                .name("Licencia MIT")
+                .url("https://choosealicense.com/licenses/mit/");
+
+        Info info = new Info()
+                .title("Tutorial, documentando API")
+                .version("1.0")
+                .contact(contact)
+                .description("Este API expone endpoints para administrar productos")
+                .termsOfService("https://www.magadiflo.com/terms")
+                .license(license);
+
+        return new OpenAPI()
+                .info(info)
+                .servers(List.of(devServer, prodServer));
+    }
+}
+````
+
+En el `application.yml` definimos los servidores a usar en desarrollo y producción:
+
+````yaml
+magadiflo:
+  openapi:
+    dev-url: http://localhost:8080
+    prod-url: http://magadiflo-api.com
+````
+
+Si ejecutamos la aplicación veremos toda la información configurada en el ui de swagger:
+
+![Open api basic information](./assets/03.open-api-basic-information.png)
+
+**NOTA.** Esa misma información debería verse si accedemos a la url `/v3/api-docs` pero en formato `json`.
+
