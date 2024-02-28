@@ -816,3 +816,28 @@ Esa configuración nos permite agrupar los endpoints, tal como se ve a continuac
 Para obtener más detalles y practicar sobre las anotaciones Swagger 3, visite:
 [Anotaciones Swagger 3 en Spring Boot](https://www.bezkoder.com/swagger-3-annotations/)
 
+## Mostrando solo los tags reading y modification
+
+Si observamos la imagen anterior, vemos que estamos mostrando tres grupos: `Products`, `reading` y `modification`. El
+tag `Products` está mostrando todos los endpoints de nuestro rest controller, **¿cómo podemos mostrar únicamente los
+tags reading y modification?**
+
+La respuesta es muy sencilla, dejamos todas las configuraciones como están y únicamente eliminamos la siguiente
+configuración, en mi caso, solo lo voy a comentar:
+
+````java
+//@Tag(name = "Products", description = "API de gestión de productos") //<-- Eliminar este código
+@RequiredArgsConstructor
+@Slf4j
+@RestController
+@RequestMapping(path = "/api/v1/products")
+public class ProductRestController {
+    /* code */
+}
+````
+
+Como observamos, el `@Tag` anterior está anotado a nivel de clase, es por eso que todos los endpoints del
+controlador se agrupan con esa etiqueta `Products` y además, como cada endpoint tienen dentro de la anotación
+`@Operation` etiquetado con `modification` y `reading`, ahora solo esos grupos se mostrarán:
+
+![08.tag-endpoints.png](./assets/08.tag-endpoints.png)
