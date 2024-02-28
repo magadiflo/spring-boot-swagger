@@ -3,6 +3,7 @@
 - Tutorial tomado de la página web de **BezKoder**.
 - Sitio web de la [OpenAPI Specification](https://swagger.io/specification/)
 - Sitio web del documento de [OpenAPI Specification v3.1.0](https://spec.openapis.org/oas/latest.html)
+- Sitio web de [springdoc-openapi v2.3.0](https://springdoc.org/)
 
 ---
 
@@ -591,6 +592,9 @@ El json completo sería el siguiente:
   ````properties
   # swagger-ui custom path
   springdoc.swagger-ui.path=/custom-path-swagger-ui
+  
+  # openApi custom path
+  springdoc.api-docs.path=/custom-api-docs
   ````
 
   En el ejemplo anterior definimos el path `/custom-path-swagger-ui` para ver el html de swagger, es decir, para acceder
@@ -699,4 +703,116 @@ Si ejecutamos la aplicación veremos toda la información configurada en el ui d
 ![Open api basic information](./assets/03.open-api-basic-information.png)
 
 **NOTA.** Esa misma información debería verse si accedemos a la url `/v3/api-docs` pero en formato `json`.
+
+## Configuraciones swagger para documentar endpoints
+
+Para realizar una descripción del API para Rest Controller o cada solicitud HTTP, continuamos con las anotaciones
+Swagger.
+
+De forma predeterminada, el nombre del grupo de endpoints es `product-rest-controller`. Podemos cambiarlo a `Products`
+(con descripción) usando la anotación `@Tag`.
+
+Simplemente actualice `ProductRestController.java`:
+
+````java
+import io.swagger.v3.oas.annotations.tags.Tag;
+/* other imports */
+
+@Tag(name = "Products", description = "API de gestión de productos")
+@RequiredArgsConstructor
+@Slf4j
+@RestController
+@RequestMapping(path = "/api/v1/products")
+public class ProductRestController {
+    /* code */
+}
+````
+
+Al ejecutar la aplicación y acceder al swagger ui veremos reflejada la configuración:
+
+![Endpoint config](./assets/04.endpoint-config.png)
+
+## Ejemplo de response de Spring Boot y Swagger
+
+Si abre un endpoint API, verá una estructura del `request` y `response` como esta:
+
+![05.structure-request-response.png](./assets/05.structure-request-response.png)
+
+Usaremos anotaciones Swagger 3 para personalizar la descripción con más detalles.
+
+````java
+
+@Tag(name = "Products", description = "API de gestión de productos")
+@RequiredArgsConstructor
+@Slf4j
+@RestController
+@RequestMapping(path = "/api/v1/products")
+public class ProductRestController {
+
+    private final IProductService productService;
+
+    @Operation(tags = {"reading"})
+    @GetMapping
+    public ResponseEntity<List<Product>> getAllProducts() {
+        /* code */
+    }
+
+    @Operation(
+            summary = "Recupera un producto por su id",
+            description = "Obtiene un objeto de Product especificando su id. " +
+                    "La respuesta es un objeto Product con id, name, quantityAvailability " +
+                    "price, availability y creationDate.",
+            tags = {"reading"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = {@Content(schema = @Schema(implementation = Product.class), mediaType = "application/json")}),
+            @ApiResponse(responseCode = "404", description = "El product con el id dado no fue encontrado", content = {@Content(schema = @Schema())}),
+            @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema())}),
+    })
+    @GetMapping(path = "/{productId}")
+    public ResponseEntity<Product> getProduct(@PathVariable Long productId) {
+        /* code */
+    }
+
+    @Operation(tags = {"modification"})
+    @PostMapping
+    public ResponseEntity<Product> saveProduct(@RequestBody Product product) {
+        /* code */
+    }
+
+    @Operation(tags = {"modification"})
+    @PutMapping(path = "/{productId}")
+    public ResponseEntity<Product> updateProduct(@PathVariable Long productId, @RequestBody Product product) {
+        /* code */
+    }
+
+    @Operation(tags = {"modification"})
+    @DeleteMapping(path = "/{productId}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long productId) {
+        /* code */
+    }
+}
+````
+
+Verificamos nuevamente la interfaz de swagger y vemos más información.
+
+![endpoint config](./assets/06.endpoint-config.png)
+
+## Operaciones de agrupación con etiquetas
+
+Puede asignar una lista de etiquetas a cada operación de API. Las herramientas y bibliotecas pueden manejar las
+operaciones etiquetadas de manera diferente. Por ejemplo, Swagger UI utiliza etiquetas para agrupar las operaciones
+mostradas.
+
+En el código anterior, vimos que usamos las siguientes configuraciones en los distintos endpoints:
+
+- `@Operation(tags = {"modification"})`
+- `@Operation(tags = {"reading"})`
+
+Esa configuración nos permite agrupar los endpoints, tal como se ve a continuación:
+
+![group tags](./assets/07.group-tags.png)
+
+Para obtener más detalles y practicar sobre las anotaciones Swagger 3, visite:
+[Anotaciones Swagger 3 en Spring Boot](https://www.bezkoder.com/swagger-3-annotations/)
 
