@@ -22,3 +22,8 @@ spring:
 logging:
   level:
     org.hibernate.SQL: DEBUG
+
+magadiflo:
+  openapi:
+    dev-url: http://localhost:8080
+    prod-url: http://magadiflo-api.com
